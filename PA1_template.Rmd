@@ -55,5 +55,65 @@ Maximum number of steps
 ```{r}
 avgSteps[ which.max(avgSteps$steps),]$interval
 ```
+###Imputing missing values
 
+Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+```{r}
+activity_completecases <- activity[complete.cases(activity),]
+nNA<-nrow(activity)-nrow(activity_completecases)
+nNA
+```
+Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+```{r}
+na_ind        <- which(is.na(activity$steps))
+interval      <- as.character(activity[na_ind,3])
+average_d_act <- tapply(activity$steps, activity$interval, mean, na.rm=T)
+imputed_steps <- average_d_act[interval]
+names(imputed_steps) <- na_ind
+```
+Create a new dataset that is equal to the original dataset but with the missing data filled in.
+```{r}
+for (i in na_ind) {
+    activity$steps[i] = imputed_steps[as.character(i)]
+}
+```
+Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+```{r}
+library(ggplot2)
+activity.steps_day <- tapply(activity$steps, activity$date, sum)
+activity_day       <- data.frame(steps = activity.steps_day)
+ggplot( data=activity_day, aes(steps) ) + geom_histogram(binwidth=1500, fill="blue")
+```
+
+Calculating the mean total number of steps taken per day
+```{r}
+mean(activity.steps_day, na.rm=T)
+```
+Calculating the median total number of steps taken per day:
+```{r}
+median(activity.steps_day, na.rm=T)
+```
+
+The difference of treating the missing data with the mean of the 5 minute interval is that the median moves with one step from 10765 to 10766
+
+###Are there differences in activity patterns between weekdays and weekends?
+```{r}
+activity$day_type <- ifelse( weekdays(as.Date(activity$date), abbreviate=T) %in% c("Szo", "V"), "weekend", "weekday")
+
+library(reshape2)
+
+average_d_act       <- tapply( activity$steps,
+                               list(activity$interval, activity$day_type),
+                               mean, na.rm=T)
+daily_activity      <- data.frame( interval=as.integer(row.names(average_d_act)),
+                              average_d_act)
+
+daily_activity.long <- melt( daily_activity, id.vars="interval", 
+                             variable.name="day_type", value.name="steps")
+
+ggplot(data=daily_activity.long, aes(interval, steps)) +
+  facet_wrap(~day_type, ncol=1) +
+  geom_line()
+```
 
