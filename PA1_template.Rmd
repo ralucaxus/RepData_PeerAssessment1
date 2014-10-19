@@ -103,17 +103,11 @@ activity$day_type <- ifelse( weekdays(as.Date(activity$date), abbreviate=T) %in%
 
 library(reshape2)
 
-average_d_act       <- tapply( activity$steps,
-                               list(activity$interval, activity$day_type),
-                               mean, na.rm=T)
-daily_activity      <- data.frame( interval=as.integer(row.names(average_d_act)),
-                              average_d_act)
+average_d_act       <- tapply( activity$steps,list(activity$interval, activity$day_type),mean, na.rm=T)
+daily_activity      <- data.frame( interval=as.integer(row.names(average_d_act)), average_d_act)
 
-daily_activity.long <- melt( daily_activity, id.vars="interval", 
-                             variable.name="day_type", value.name="steps")
+daily_activity.long <- melt( daily_activity, id.vars="interval",variable.name="day_type", value.name="steps")
 
-ggplot(data=daily_activity.long, aes(interval, steps)) +
-  facet_wrap(~day_type, ncol=1) +
-  geom_line()
+ggplot(data=daily_activity.long, aes(interval, steps)) + facet_wrap(~day_type, ncol=1) +geom_line()
 ```
 
