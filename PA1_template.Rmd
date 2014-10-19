@@ -1,25 +1,40 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+##Peer Assesment 1 data personal movement using activity monitoring devices
 
+### Data
 
-## Loading and preprocessing the data
+The data for this assignment can be downloaded from Github repository linked attached
 
+###Loading and preprocessing the data
 
+Show any code that is needed to
 
-## What is mean total number of steps taken per day?
+1. Load the data 
+2. Process/transform the data (if necessary) into a format suitable for your analysis
 
+First, a directory is created to keep the data in it, afterwards the data is downloaded and unzipped and saved in the directory. First 5 rows are shown 
 
+```{r}
+if(!file.exists("./keepdata")){dir.create("./keepdata")}
+URL<-"http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+download.file(URL, destfile="./keepdata/activity.zip", "curl")
+unzip("./keepdata/activity.zip", exdir = "./keepdata", overwrite = TRUE)
+activity <- read.csv("./keepdata/activity.csv", sep = ",", na.strings = "NA")
+head(activity)
+```
+###What is mean total number of steps taken per day?
+For this part of the assignment, you can ignore the missing values in the dataset.
+1. Make a histogram of the total number of steps taken each day
+2. Calculate and report the mean and median total number of steps taken per day
 
-## What is the average daily activity pattern?
+Firstly, numbers of steps are summed up by day, removing missing values afterwards a historgram is created 
 
+```{r}
+totalSteps_Day <- aggregate( steps ~ date, data = activity, FUN = 'sum',na.rm = TRUE)
+hist(totalSteps_Day$steps, main = 'Total steps (Day)',xlab = 'Steps per Day', col = 'green')
+```
 
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
+Secondly, mean and median are reported 
+```{r}
+mean(totalSteps_Day$steps)
+median(totalSteps_Day$steps)
+```
